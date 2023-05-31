@@ -1,0 +1,19 @@
+name: IP Ranges Monitoring
+
+on:
+  schedule:
+    - cron: '*/2 * * * *'
+
+jobs:
+  monitor-ip-ranges:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
+
+      - name: Build and run Go code
+        run: go run main.go
+
