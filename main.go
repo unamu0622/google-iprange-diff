@@ -3,35 +3,45 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 )
 
 const (
 	url      = "https://www.gstatic.com/ipranges/goog.txt"
-	filename = "goog.txt"
+	fileName = "goog.txt"
 )
 
 func main() {
+	err := downloadFile(url, fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func downloadFile(url string, fileName string) error {
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Printf("Error retrieving content: %s\n", err)
-		return
+		return fmt.Errorf("error retrieving content: %s", err)
 	}
 	defer resp.Body.Close()
 
-	file, err := os.Create(filename)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error: Response status code is %d", resp.StatusCode)
+	}
+
+	file, err := os.Create(fileName)
 	if err != nil {
-		fmt.Printf("Error creating file: %s\n", err)
-		return
+		return fmt.Errorf("error creating file: %s", err)
 	}
 	defer file.Close()
 
 	_, err = io.Copy(file, resp.Body)
 	if err != nil {
-		fmt.Printf("Error saving content to file: %s\n", err)
-		return
+		return fmt.Errorf("error saving content to file: %s", err)
 	}
 
-	fmt.Println("Content saved to", filename)
+	fmt.Println("Content saved to", fileName)
+	return nil
 }
